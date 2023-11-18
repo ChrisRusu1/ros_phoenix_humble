@@ -6,7 +6,6 @@
 #include "ros_phoenix/msg/motor_control.hpp"
 #include "ros_phoenix/msg/motor_status.hpp"
 
-#include "hardware_interface/base_interface.hpp"
 #include "hardware_interface/system_interface.hpp"
 
 #include "rclcpp/logger.hpp"
@@ -15,8 +14,7 @@
 
 namespace ros_phoenix {
 
-class PhoenixBridge
-    : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> {
+class PhoenixBridge : public hardware_interface::SystemInterface {
 public:
     RCLCPP_SHARED_PTR_DEFINITIONS(PhoenixBridge)
 
@@ -36,9 +34,9 @@ public:
 
     hardware_interface::return_type stop();
 
-    hardware_interface::return_type read();
-
-    hardware_interface::return_type write();
+    hardware_interface::return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
+    
+    hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
     enum InterfaceType {

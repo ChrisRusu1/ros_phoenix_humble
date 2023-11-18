@@ -138,7 +138,7 @@ hardware_interface::return_type PhoenixSystem::configure(
 
         if (joint.command_interfaces.size() != 1) {
             RCLCPP_FATAL(this->logger_, "Joint '%s' has %d command interfaces. Expected 1.",
-                joint.name.c_str(), joint.command_interfaces.size());
+                joint.name.c_str(), static_cast<int>(joint.command_interfaces.size()));
             return hardware_interface::return_type::ERROR;
         }
         ControlMode cmd_interface = str_to_interface(joint.command_interfaces[0].name);
@@ -214,7 +214,7 @@ hardware_interface::return_type PhoenixSystem::stop()
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type PhoenixSystem::read()
+hardware_interface::return_type PhoenixSystem::read(const rclcpp::Time &, const rclcpp::Duration &) 
 {
     for (auto& joint : this->joints_) {
         *(joint.status) = *(joint.node->status());
@@ -222,7 +222,7 @@ hardware_interface::return_type PhoenixSystem::read()
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type PhoenixSystem::write()
+hardware_interface::return_type PhoenixSystem::write(const rclcpp::Time &, const rclcpp::Duration &) 
 {
     for (auto& joint : this->joints_) {
         joint.node->set(joint.control);

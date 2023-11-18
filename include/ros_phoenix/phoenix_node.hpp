@@ -71,7 +71,7 @@ public:
             this->controller_->Set(mode, control_msg->value);
         } else {
             this->controller_->Set(ControlMode::Disabled, 0.0);
-            RCLCPP_WARN(this->get_logger(), "Invalid control mode: %d", mode);
+            RCLCPP_WARN(this->get_logger(), "Invalid control mode: %d", static_cast<int>(mode));
         }
     }
 

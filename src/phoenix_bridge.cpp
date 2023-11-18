@@ -33,22 +33,22 @@ hardware_interface::return_type PhoenixBridge::configure(
     this->logger_ = rclcpp::get_logger(info.name);
     this->info_ = info;
 
-    if (configure_default(info) != hardware_interface::return_type::OK) {
-        return hardware_interface::return_type::ERROR;
-    }
+    // if (configure_default(info) != hardware_interface::return_type::OK) {
+    //     return hardware_interface::return_type::ERROR;
+    // }
 
     for (auto joint : info.joints) {
         auto cmd = std::make_shared<ros_phoenix::msg::MotorControl>();
 
         if (joint.command_interfaces.size() != 1) {
             RCLCPP_FATAL(this->logger_, "Joint '%s' has %d command interfaces. Expected 1.",
-                joint.name.c_str(), joint.command_interfaces.size());
+                joint.name.c_str(), static_cast<int>(joint.command_interfaces.size()));
             return hardware_interface::return_type::ERROR;
         }
         InterfaceType cmd_interface = str_to_interface(joint.command_interfaces[0].name);
         if (cmd_interface == InterfaceType::INVALID) {
             RCLCPP_FATAL(this->logger_, "Joint '%s' has an invalid command interface: %s",
-                joint.name.c_str(), joint.command_interfaces[0].name);
+                joint.name.c_str(), joint.command_interfaces[0].name.c_str());
             return hardware_interface::return_type::ERROR;
         }
         cmd->mode = cmd_interface;
@@ -56,7 +56,7 @@ hardware_interface::return_type PhoenixBridge::configure(
         for (auto state_inter : joint.state_interfaces) {
             if (str_to_interface(state_inter.name) == InterfaceType::INVALID) {
                 RCLCPP_FATAL(this->logger_, "Joint '%s' has an invalid state interface: %s",
-                    joint.name.c_str(), state_inter.name);
+                    joint.name.c_str(), state_inter.name.c_str());
                 return hardware_interface::return_type::ERROR;
             }
         }
@@ -137,13 +137,13 @@ hardware_interface::return_type PhoenixBridge::stop()
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type PhoenixBridge::read()
+hardware_interface::return_type PhoenixBridge::read(const rclcpp::Time &, const rclcpp::Duration &) 
 {
     // Do nothing because this->hw_status_ is updated asynchronously in this->spin_thread_
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type PhoenixBridge::write()
+hardware_interface::return_type PhoenixBridge::write(const rclcpp::Time &, const rclcpp::Duration &) 
 {
     for (auto i = 0u; i < this->info_.joints.size(); i++) {
         this->publishers_[i]->publish(*(this->hw_cmd_[i]));
